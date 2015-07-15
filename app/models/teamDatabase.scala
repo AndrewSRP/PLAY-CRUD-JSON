@@ -4,6 +4,7 @@ import play.api.db.DB
 import play.api.Play.current
 import scala.concurrent.Future
 import slick.driver.PostgresDriver.api._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class teamDB(ID: Int, TITLE: String, MEMBERCOUNT: Int, URLPATH:String, CASH:Int, MASTERID:Int)
 
@@ -25,11 +26,11 @@ object teamDatabase{
   def db: Database = Database.forDataSource(DB.getDataSource())
 
   //select
-  def getAll: Future[Seq[teamDB]] = {
+  def getAll(first :Int = 0,sum :Int = 10): Future[Seq[teamDB]] = {
     val query =
       (for {
         andrewData <- dbQuery
-      } yield (andrewData)).drop(0).take(10)
+      } yield (andrewData)).drop(first).take(first+sum)
     try db.run(query.sortBy(_.ID.asc).result)
     finally db.close()
   }
