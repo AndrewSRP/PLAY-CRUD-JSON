@@ -18,19 +18,20 @@ object Application extends Controller {
     //{"TEAMTITLE":"came","ID":3,"NAME":"andrew","PASSWORD":"pass","JOB":"jbo","AGE":0}
     request.body.asJson.map(json => println(json.\("ID").as[Int]))
 
+    println("test")
     Ok(request.body.asJson.toString)
   }
 
   //teamlist
-  def teamGetAll = Action.async{
-        teamDatabase.getAll.map(team => {
-        val json: JsValue = Json.parse("{\"team\" : " + Json.toJson(team) +"}")
-        Ok(json)
-      })
+  def teamGetAll = Action.async {
+    teamDatabase.getAll().map(team => {
+      val json: JsValue = Json.parse("{\"team\" : " + Json.toJson(team) + "}")
+      Ok(json)
+    })
   }
 
   def teamGetSomeOne(teamTitle: String) = Action.async{
-    teamDatabase.getAll.map(team => {
+    teamDatabase.getAll().map(team => {
       val json: JsValue = Json.toJson(team.filter(_.TITLE == teamTitle))
       Ok(json)
     })
