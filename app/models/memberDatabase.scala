@@ -23,18 +23,18 @@ object memberDatabase{
   def db: Database = Database.forDataSource(DB.getDataSource())
 
   //list
-  def getAll: Future[Seq[memberDB]] = {
+  def getAll(first: Int = 0, sum: Int = 10): Future[Seq[memberDB]] = {
     val query =
       (for {
         qData <- dbQuery
-      } yield (qData)).drop(0).take(10)
+      } yield (qData)).drop(first).take(first + sum)
 
     try db.run(query.sortBy(_.ID.asc).result)
     finally db.close()
   }
 
   def getWithTeam(teamName: String): Future[Seq[memberDB]] = {
-    try db.run(teamFilterQuery(teamName).drop(0).take(10).sortBy(_.ID.asc).result)//asc up sort
+    try db.run(filterQueryByTeam(teamName).drop(0).take(10).sortBy(_.ID.asc).result) //asc up sort
     finally db.close()
   }
 
@@ -51,42 +51,42 @@ object memberDatabase{
 
   //update
   def update(id: Int, chagemember: memberDB) = {
-    try db.run(idFilterQuery(id).update(chagemember))
+    try db.run(filterQueryById(id).update(chagemember))
     finally db.close
   }
 
   //delete
   def delete(name: String) = {
-    try db.run(nameFilterQuery(name).delete)
+    try db.run(filterQueryByName(name).delete)
     finally db.close
   }
 
   def delWithTeam(teamName: String) = {
-    try db.run(teamFilterQuery(teamName).delete)
+    try db.run(filterQueryByTeam(teamName).delete)
     finally db.close()
   }
 
   //fillter
-  private def idFilterQuery(id: Int): Query[memberDBC, memberDB, Seq] =
+  private def filterQueryById(id: Int): Query[memberDBC, memberDB, Seq] =
     dbQuery.filter(_.ID === id)
 
-  private def teamFilterQuery(teamName: String): Query[memberDBC, memberDB, Seq] =
+  private def filterQueryByTeam(teamName: String): Query[memberDBC, memberDB, Seq] =
     dbQuery.filter(_.TEAMNAME === teamName)
 
-  private def nameFilterQuery(name: String): Query[memberDBC, memberDB, Seq] =
+  private def filterQueryByName(name: String): Query[memberDBC, memberDB, Seq] =
     dbQuery.filter(_.NAME === name)
 
-  private def nameAndTeamFilterQuery(name: String, teamName: String): Query[memberDBC, memberDB, Seq] =
+  private def filterQueryByNameAndTeam(name: String, teamName: String): Query[memberDBC, memberDB, Seq] =
     dbQuery.filter(p => p.NAME === name && p.TEAMNAME === teamName)
 
   //find
   def findName(name: String) = {
-    try db.run(nameFilterQuery(name).result)
+    try db.run(filterQueryByName(name).result)
     finally db.close()
   }
 
   def findNameAndTeam(name: String, teamName: String) = {
-    try db.run(nameAndTeamFilterQuery(name,teamName).result)
+    try db.run(filterQueryByNameAndTeam(name, teamName).result)
     finally db.close()
   }
 
@@ -95,7 +95,7 @@ object memberDatabase{
     finally db.close()
   }
 
-  def count: Future[Int] = {
+  def counter: Future[Int] = {
     try db.run(dbQuery.length.result)
     finally db.close
   }

@@ -44,7 +44,6 @@ object JsonFormatter {
       (JsPath \ "AGE").read[Int]
     )(memberJsons.apply _)
 
-
   implicit val memberJson = Json.format[memberDB]
   implicit val teamJson = Json.format[teamDB]
 }

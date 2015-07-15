@@ -49,21 +49,21 @@ object teamDatabase{
   
   //update
   def update(teamName:String, changeTeam:teamDB) = {
-    try db.run(teamNameFilterQuery(teamName).update(changeTeam))
+    try db.run(filterQueryByTeamname(teamName).update(changeTeam))
     finally db.close
   }
 
   //delete
   def delete(teamName: String) = {
-    try db.run(teamNameFilterQuery(teamName).delete)
+    try db.run(filterQueryByTeamname(teamName).delete)
     finally db.close
   }
 
   //fillter
-  private def idFilterQuery(id: Int): Query[teamDBC, teamDB, Seq] =
+  private def filterQueryById(id: Int): Query[teamDBC, teamDB, Seq] =
     dbQuery.filter(_.ID === id)
 
-  private def teamNameFilterQuery(teamName: String): Query[teamDBC, teamDB, Seq] =
+  private def filterQueryByTeamname(teamName: String): Query[teamDBC, teamDB, Seq] =
     dbQuery.filter(_.TEAMNAME === teamName)
 
   def findByName(teamName:String) = {
@@ -77,8 +77,8 @@ object teamDatabase{
     finally db.close()
   }
 
-  def count: Future[Int] = {
-    try db.run(dbQuery.length.result)
+  def counter: Future[Int] = {
+    try db.run(dbQuery.length.result).
     finally db.close
   }
 }

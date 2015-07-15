@@ -14,14 +14,14 @@ object memberApplication extends Controller {
   import utils.JsonFormatter._
 
   def memberGetSomeOne(teamTitle: String, memberName: String) = Action.async {
-    memberDatabase.getAll.map(member => {
+    memberDatabase.getAll().map(member => {
       val json: JsValue = Json.parse("{\"memberDB\" : " + Json.toJson(member.filter(_.NAME == memberName)) + "}")
       Ok(json)
     })
   }
 
   def memberAllGet = Action.async {
-    memberDatabase.getAll.map(member => {
+    memberDatabase.getAll().map(member => {
       val json: JsValue = Json.parse("{\"memberDB\" : " + Json.toJson(member) + "}")
       Ok(json)
     })
