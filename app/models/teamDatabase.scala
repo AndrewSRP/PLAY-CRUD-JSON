@@ -6,7 +6,7 @@ import scala.concurrent.Future
 import slick.driver.PostgresDriver.api._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-case class teamDB(ID: Int, TITLE: String, MEMBERCOUNT: Int, URLPATH:String, CASH:Int, MASTERID:Int)
+case class teamDB(ID: Int, TEAMNAME: String, MEMBERCOUNT: Int, URLPATH: String, CASH: Int, MASTERID: Int)
 
 class teamDBC(tag: Tag) extends Table[teamDB](tag, "TEAM") {
   def ID = column[Int]("ID",O.AutoInc, O.PrimaryKey)
