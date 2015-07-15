@@ -18,7 +18,7 @@ object Application extends Controller {
     //{"TEAMTITLE":"came","ID":3,"NAME":"andrew","PASSWORD":"pass","JOB":"jbo","AGE":0}
     request.body.asJson.map(json => println(json.\("ID").as[Int]))
 
-    println("test")
+    println("testss")
     Ok(request.body.asJson.toString)
   }
 
