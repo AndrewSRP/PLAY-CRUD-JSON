@@ -23,7 +23,12 @@ object memberDatabase{
   def db: Database = Database.forDataSource(DB.getDataSource())
 
   //list
-  def getAll(first: Int = 0, sum: Int = 10): Future[Seq[memberDB]] = {
+  def getAll: Future[Seq[memberDB]] = {
+    try db.run(dbQuery.sortBy(_.ID.asc).result)
+    finally db.close()
+  }
+
+  def getSome(first: Int = 0, sum: Int = 10): Future[Seq[memberDB]] = {
     val query =
       (for {
         qData <- dbQuery
@@ -80,12 +85,12 @@ object memberDatabase{
     dbQuery.filter(p => p.NAME === name && p.TEAMNAME === teamName)
 
   //find
-  def findName(name: String) = {
+  def findByName(name: String) = {
     try db.run(filterQueryByName(name).result)
     finally db.close()
   }
 
-  def findNameAndTeam(name: String, teamName: String) = {
+  def findByNameAndTeam(name: String, teamName: String) = {
     try db.run(filterQueryByNameAndTeam(name, teamName).result)
     finally db.close()
   }

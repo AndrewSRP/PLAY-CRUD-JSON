@@ -26,7 +26,12 @@ object teamDatabase{
   def db: Database = Database.forDataSource(DB.getDataSource())
 
   //select
-  def getAll(first :Int = 0,sum :Int = 10): Future[Seq[teamDB]] = {
+  def getAll: Future[Seq[teamDB]] = {
+    try db.run(dbQuery.sortBy(_.ID.asc).result)
+    finally db.close()
+  }
+
+  def getSome(first: Int = 0, sum: Int = 10): Future[Seq[teamDB]] = {
     val query =
       (for {
         andrewData <- dbQuery
@@ -78,7 +83,7 @@ object teamDatabase{
   }
 
   def counter: Future[Int] = {
-    try db.run(dbQuery.length.result).
+    try db.run(dbQuery.length.result)
     finally db.close
   }
 }

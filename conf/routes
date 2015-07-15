@@ -16,7 +16,7 @@ DELETE        /team/:teamTitle                    controllers.teamApplication.te
 
 #member_info
 GET           /member                             controllers.memberApplication.memberAllGet
-GET           /team/:teamTitle/member             controllers.teamApplication.teamMemberlist(teamTitle: String)
+GET        /team/:teamTitle/member        controllers.memberApplication.teamMemberlist(teamTitle: String)
 GET           /team/:teamTitle/:memberName        controllers.memberApplication.memberGetSomeOne(teamTitle: String, memberName:String)
 POST          /team/:teamTitle/:memberName        controllers.memberApplication.memberInsert(teamTitle: String, memberName:String)
 PUT           /team/:teamTitle/:memberName        controllers.memberApplication.memberUpdate(teamTitle:String, memberName:String)

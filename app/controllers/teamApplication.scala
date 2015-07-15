@@ -1,6 +1,5 @@
 package controllers
 
-import controllers.Application._
 import models._
 import play.api.libs.json.{Json, JsValue}
 import play.api.mvc.{Controller, Action}
@@ -15,14 +14,14 @@ object teamApplication extends Controller {
 
   //teamlist
   def teamGetAll = Action.async {
-    teamDatabase.getAll().map(team => {
-      val json: JsValue = Json.parse("{\"team\" : " + Json.toJson(team) + "}")
+    teamDatabase.getAll.map(team => {
+      val json: JsValue = Json.parse("{\"teamDB\" : " + Json.toJson(team) + "}")
       Ok(json)
     })
   }
 
   def teamGetSomeOne(teamTitle: String) = Action.async {
-    teamDatabase.getAll().map(team => {
+    teamDatabase.getSome().map(team => {
       val json: JsValue = Json.toJson(team.filter(_.TEAMNAME == teamTitle))
       Ok(json)
     })
@@ -63,13 +62,5 @@ object teamApplication extends Controller {
     memberDatabase.delWithTeam(teamTitle)
     teamDatabase.delete(teamTitle)
     Redirect(routes.teamApplication.teamGetAll())
-  }
-
-  //member_list
-  def teamMemberlist(teamTitle: String) = Action.async {
-    memberDatabase.getWithTeam(teamTitle).map(member => {
-      val json: JsValue = Json.parse("{\"memberDB\" : " + Json.toJson(member) + "}")
-      Ok(json)
-    })
   }
 }

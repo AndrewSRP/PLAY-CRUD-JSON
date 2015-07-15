@@ -1,6 +1,5 @@
 package controllers
 
-import controllers.Application._
 import models._
 import play.api.libs.json.{Json, JsValue}
 import play.api.mvc.{Controller, Action}
@@ -13,15 +12,23 @@ object memberApplication extends Controller {
 
   import utils.JsonFormatter._
 
+  //member_list
+  def memberAllGet = Action.async {
+    memberDatabase.getAll.map(member => {
+      val json: JsValue = Json.parse("{\"memberDB\" : " + Json.toJson(member) + "}")
+      Ok(json)
+    })
+  }
+
   def memberGetSomeOne(teamTitle: String, memberName: String) = Action.async {
-    memberDatabase.getAll().map(member => {
+    memberDatabase.getSome().map(member => {
       val json: JsValue = Json.parse("{\"memberDB\" : " + Json.toJson(member.filter(_.NAME == memberName)) + "}")
       Ok(json)
     })
   }
 
-  def memberAllGet = Action.async {
-    memberDatabase.getAll().map(member => {
+  def teamMemberlist(teamTitle: String) = Action.async {
+    memberDatabase.getWithTeam(teamTitle).map(member => {
       val json: JsValue = Json.parse("{\"memberDB\" : " + Json.toJson(member) + "}")
       Ok(json)
     })
@@ -43,7 +50,7 @@ object memberApplication extends Controller {
   //member_update
   def memberUpdate(teamTitle: String, memberName: String) = Action { request =>
     request.body.asJson.map(json => {
-      memberDatabase.findNameAndTeam(memberName, teamTitle).map(matchMember => {
+      memberDatabase.findByNameAndTeam(memberName, teamTitle).map(matchMember => {
         memberDatabase.update(matchMember.head.ID, memberDB(teamTitle, matchMember.head.ID, memberName,
           (json \ ("PASSWORD")).as[String],
           (json \ ("JOB")).as[String],
