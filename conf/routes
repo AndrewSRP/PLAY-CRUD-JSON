@@ -3,37 +3,38 @@
 # ~~~~
 
 # Home page
-GET           /                                          controllers.Application.index
+GET           /                                   controllers.Application.index
 
 #team_main
-GET           /team                                      controllers.Application.teamGetAll
-POST          /team                                      controllers.Application.teamPOST
+GET           /team                               controllers.Application.teamGetAll
+POST          /team                               controllers.Application.teamPOST
 
 #team_info
-GET           /team/:teamTitle                           controllers.Application.teamGetSomeOne(teamTitle: String)
-POST          /team/:teamTitle                           controllers.Application.teamInsert(teamTitle:String)
-PUT           /team/:teamTitle                           controllers.Application.teamUpdate(teamTitle:String)
-DELETE        /team/:teamTitle                           controllers.Application.teamDel(teamTitle:String)
+GET           /team/:teamTitle                    controllers.Application.teamGetSomeOne(teamTitle: String)
+POST          /team/:teamTitle                    controllers.Application.teamInsert(teamTitle:String)
+PUT           /team/:teamTitle                    controllers.Application.teamUpdate(teamTitle:String)
+DELETE        /team/:teamTitle                    controllers.Application.teamDel(teamTitle:String)
 
 #team_get_test
 #GET           /team/into/:teamTitle                      controllers.Application.teamInsert(teamTitle: String)
-#GET           /team/update/:id/:teamTitle                controllers.Application.teamUpdate(teamTitle:String)
+#GET           /team/update/:teamTitle                controllers.Application.teamUpdate(teamTitle:String)
 #GET           /team/del/:teamTitle                       controllers.Application.teamDel(teamTitle:String)
 
 #member_info
-GET           /team/:teamTitle/member                    controllers.Application.teamMemberlist(teamTitle: String)
-POST          /team/:teamTitle/:memberName               controllers.Application.memberInsert(teamTitle: String, memberName:String)
-PUT           /team/:teamTitle/:memberName               controllers.Application.memberUpdate(teamTitle:String, memberName:String)
-DELETE        /team/:teamTitle/:memberName               controllers.Application.memberDel(teamTitle:String, memberName:String)
+GET           /team/:teamTitle/member             controllers.Application.teamMemberlist(teamTitle: String)
+GET           /team/:teamTitle/:memberName        controllers.Application.memberGetSomeOne(teamTitle: String, memberName:String)
+POST          /team/:teamTitle/:memberName        controllers.Application.memberInsert(teamTitle: String, memberName:String)
+PUT           /team/:teamTitle/:memberName        controllers.Application.memberUpdate(teamTitle:String, memberName:String)
+DELETE        /team/:teamTitle/:memberName        controllers.Application.memberDel(teamTitle:String, memberName:String)
 
 #member_get_test
-GET           /member                                    controllers.Application.memberAllGet
+GET           /member                             controllers.Application.memberAllGet
 #GET           /team/:teamTitle/into/:memberName          controllers.Application.memberInsert(teamTitle: String, memberName:String)
 #GET           /team/:teamTitle/update/:memberName        controllers.Application.memberUpdate(teamTitle:String, memberName:String)
 #GET           /team/:teamTitle/del/:memberName           controllers.Application.memberDel(teamTitle:String, memberName:String)
 
 
 # Map static resources from the /public folder to the /assets URL path
-GET           /assets/*file                              controllers.Assets.at(path="/public", file)
+GET           /assets/*file                       controllers.Assets.at(path="/public", file)
 
     

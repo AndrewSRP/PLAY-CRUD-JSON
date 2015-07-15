@@ -15,6 +15,7 @@ object Application extends Controller {
   def teamPOST = Action{ request =>
     //request.body.asJson.map(x => (x \\ "people").map(y => println((y \\ "firstName")) ))
     //{"ID":36,"TITLE":"came","MEMBERCOUNT":1,"URLPATH":"urlpath","CASH":100,"MASTERID":10}
+    //{"TEAMTITLE":"came","ID":3,"NAME":"andrew","PASSWORD":"pass","JOB":"jbo","AGE":0}
     request.body.asJson.map(json => println(json.\("ID").as[Int]))
 
     Ok(request.body.asJson.toString)
@@ -38,6 +39,7 @@ object Application extends Controller {
   //team_insert
   def teamInsert(teamTitle:String) = Action { request =>
     request.body.asJson.map(json => {
+      //{"MEMBERCOUNT":1,"URLPATH":"urlpath","CASH":100,"MASTERID":10}
       //{"ID":36,"TITLE":"came","MEMBERCOUNT":1,"URLPATH":"urlpath","CASH":100,"MASTERID":10}
       teamDatabase.inserts(teamDB(0, teamTitle,
         (json \ ("MEMBERCOUNT")).as[Int],
@@ -49,14 +51,14 @@ object Application extends Controller {
   }
 
   //team_update
-  def teamUpdate(title: String) = Action{request =>
+  def teamUpdate(teamTitle: String) = Action{request =>
     request.body.asJson.map(json => {
-      teamDatabase.findByTitle(title).map(x =>
-      teamDatabase.update(title, teamDB(x.head.ID, title,
-        (json \ ("MEMBERCOUNT")).as[Int],
-        (json \ "URLPATH").as[String],
-        (json \ "CASH").as[Int],
-        (json \ "MASTERID").as[Int])))
+      teamDatabase.findByName(teamTitle).map(matchTeam =>
+        teamDatabase.update(teamTitle, teamDB(matchTeam.head.ID, teamTitle,
+          (json \ ("MEMBERCOUNT")).as[Int],
+          (json \ "URLPATH").as[String],
+          (json \ "CASH").as[Int],
+          (json \ "MASTERID").as[Int])))
     })
     Redirect(routes.Application.teamGetAll())
   }
@@ -76,6 +78,13 @@ object Application extends Controller {
     })
   }
 
+  def memberGetSomeOne(teamTitle: String, memberName: String) = Action.async{
+    memberDatabase.getAll.map(member => {
+      val json: JsValue = Json.parse("{\"memberDB\" : " + Json.toJson(member.filter(_.NAME == memberName)) +"}")
+      Ok(json)
+    })
+  }
+
   def memberAllGet = Action.async {
     memberDatabase.getAll.map(member => {
       val json: JsValue = Json.parse("{\"memberDB\" : " + Json.toJson(member) +"}")
@@ -86,6 +95,7 @@ object Application extends Controller {
   //member_insert
   def memberInsert(teamTitle: String, memberName: String) = Action{ request =>
     request.body.asJson.map(json => {
+      //{"PASSWORD":"pass","JOB":"jbo","AGE":0}
       //{"TEAMTITLE":"came","ID":3,"NAME":"andrew","PASSWORD":"pass","JOB":"jbo","AGE":0}
       memberDatabase.inserts(memberDB(teamTitle,0,memberName,
         (json \ ("PASSWORD")).as[String],
@@ -98,7 +108,7 @@ object Application extends Controller {
   //member_update
   def memberUpdate(teamTitle: String, memberName: String) = Action{ request =>
     request.body.asJson.map(json => {
-      memberDatabase.findName(memberName).map(matchMember => {
+      memberDatabase.findNameAndTeam(memberName,teamTitle).map(matchMember => {
         memberDatabase.update(matchMember.head.ID, memberDB(teamTitle, matchMember.head.ID, memberName,
           (json \ ("PASSWORD")).as[String],
           (json \ ("JOB")).as[String],

@@ -4,7 +4,6 @@ import play.api.db.DB
 import play.api.Play.current
 import scala.concurrent.Future
 import slick.driver.PostgresDriver.api._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 case class memberDB(TEAMTITLE:String, ID: Int, NAME: String, PASSWORD: String, JOB:String, AGE:Int)
 
@@ -34,19 +33,19 @@ object memberDatabase{
     finally db.close()
   }
 
-  def getWithTeam(teamTitle: String): Future[Seq[memberDB]] = {
-    try db.run(teamFilterQuery(teamTitle).drop(0).take(10).sortBy(_.ID.asc).result)
+  def getWithTeam(teamName: String): Future[Seq[memberDB]] = {
+    try db.run(teamFilterQuery(teamName).drop(0).take(10).sortBy(_.ID.asc).result)//asc up sort
     finally db.close()
   }
 
   //insert
-  def insert(addmember: memberDB) = {
-    try db.run(dbQuery.forceInsert(addmember))
+  def insert(addMember: memberDB) = {
+    try db.run(dbQuery.forceInsert(addMember))
     finally db.close
   }
 
-  def inserts(addmember: memberDB) = {
-    try db.run(dbQuery += addmember)
+  def inserts(addMember: memberDB) = {
+    try db.run(dbQuery += addMember)
     finally db.close
   }
 
@@ -62,8 +61,8 @@ object memberDatabase{
     finally db.close
   }
 
-  def delWithTeam(teamTitle: String) = {
-    try db.run(teamFilterQuery(teamTitle).delete)
+  def delWithTeam(teamName: String) = {
+    try db.run(teamFilterQuery(teamName).delete)
     finally db.close()
   }
 
@@ -71,15 +70,23 @@ object memberDatabase{
   private def idFilterQuery(id: Int): Query[memberDBC, memberDB, Seq] =
     dbQuery.filter(_.ID === id)
 
-  private def teamFilterQuery(teamTitle: String): Query[memberDBC, memberDB, Seq] =
-    dbQuery.filter(_.TEAMNAME === teamTitle)
+  private def teamFilterQuery(teamName: String): Query[memberDBC, memberDB, Seq] =
+    dbQuery.filter(_.TEAMNAME === teamName)
 
   private def nameFilterQuery(name: String): Query[memberDBC, memberDB, Seq] =
     dbQuery.filter(_.NAME === name)
 
+  private def nameAndTeamFilterQuery(name: String, teamName: String): Query[memberDBC, memberDB, Seq] =
+    dbQuery.filter(p => p.NAME === name && p.TEAMNAME === teamName)
+
   //find
   def findName(name: String) = {
     try db.run(nameFilterQuery(name).result)
+    finally db.close()
+  }
+
+  def findNameAndTeam(name: String, teamName: String) = {
+    try db.run(nameAndTeamFilterQuery(name,teamName).result)
     finally db.close()
   }
 

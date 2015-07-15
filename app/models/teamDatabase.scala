@@ -35,26 +35,26 @@ object teamDatabase{
   }
 
   //insert into
-  def insert(addteam :teamDB) = {
-    try db.run( dbQuery.forceInsert(addteam))
+  def insert(addTeam :teamDB) = {
+    try db.run( dbQuery.forceInsert(addTeam))
     finally db.close
   }
 
-  def inserts(addteam :teamDB) = {
-    try db.run( dbQuery += addteam)
+  def inserts(addTeam :teamDB) = {
+    try db.run( dbQuery += addTeam)
     finally db.close
   }
 
   
   //update
-  def update(title:String, chageteam:teamDB) = {
-    try db.run(teamnameFilterQuery(title).update(chageteam))
+  def update(teamName:String, changeTeam:teamDB) = {
+    try db.run(teamNameFilterQuery(teamName).update(changeTeam))
     finally db.close
   }
 
   //delete
-  def delete(teamTitle: String) = {
-    try db.run(teamnameFilterQuery(teamTitle).delete)
+  def delete(teamName: String) = {
+    try db.run(teamNameFilterQuery(teamName).delete)
     finally db.close
   }
 
@@ -62,15 +62,11 @@ object teamDatabase{
   private def idFilterQuery(id: Int): Query[teamDBC, teamDB, Seq] =
     dbQuery.filter(_.ID === id)
 
-  private def teamnameFilterQuery(teamname: String): Query[teamDBC, teamDB, Seq] =
-    dbQuery.filter(_.TEAMNAME === teamname)
+  private def teamNameFilterQuery(teamName: String): Query[teamDBC, teamDB, Seq] =
+    dbQuery.filter(_.TEAMNAME === teamName)
 
-  def findId(id :Int){
-    println(dbQuery.filter(_.ID === id).map(_.TEAMNAME))
-  }
-
-  def findByTitle(teamname:String) = {
-    try db.run(dbQuery.filter(_.TEAMNAME === teamname).result)
+  def findByName(teamName:String) = {
+    try db.run(dbQuery.filter(_.TEAMNAME === teamName).result)
     finally db.close
   }
 
