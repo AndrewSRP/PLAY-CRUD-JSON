@@ -1,21 +1,28 @@
 package models
 
-import play.api.db.DB
 import play.api.Play.current
-import scala.concurrent.Future
+import play.api.db.DB
 import slick.driver.PostgresDriver.api._
+import scala.concurrent.Future
 
-case class memberDB(TEAMTITLE:String, ID: Int, NAME: String, PASSWORD: String, JOB:String, AGE:Int)
+case class memberDB(TEAMTITLE: String, ID: Int, NAME: String, PASSWORD: String, JOB: String, AGE: Int)
 
 class memberDBC(tag: Tag) extends Table[memberDB](tag, "MEMBER") {
+  def * = (TEAMNAME, ID, NAME, PASSWORD, JOB, AGE) <>(memberDB.tupled, memberDB.unapply)
+
   def TEAMNAME = column[String]("TEAMNAME", O.PrimaryKey)
-  def ID = column[Int]("ID",O.AutoInc, O.PrimaryKey)
+
+  def ID = column[Int]("ID", O.AutoInc, O.PrimaryKey)
+
   def NAME = column[String]("NAME")
+
   def PASSWORD = column[String]("PASSWORD")
+
   def JOB = column[String]("JOB")
+
   def AGE = column[Int]("AGE")
 
-  def * = (TEAMNAME, ID, NAME, PASSWORD, JOB, AGE) <> (memberDB.tupled, memberDB.unapply)
+  //insertAll (memberSB *= values <> mapped entities
 }
 
 object memberDatabase{
@@ -60,6 +67,10 @@ object memberDatabase{
     finally db.close
   }
 
+  //fillter
+  private def filterQueryById(id: Int): Query[memberDBC, memberDB, Seq] =
+    dbQuery.filter(_.ID === id)
+
   //delete
   def delete(name: String) = {
     try db.run(filterQueryByName(name).delete)
@@ -71,18 +82,8 @@ object memberDatabase{
     finally db.close()
   }
 
-  //fillter
-  private def filterQueryById(id: Int): Query[memberDBC, memberDB, Seq] =
-    dbQuery.filter(_.ID === id)
-
   private def filterQueryByTeam(teamName: String): Query[memberDBC, memberDB, Seq] =
     dbQuery.filter(_.TEAMNAME === teamName)
-
-  private def filterQueryByName(name: String): Query[memberDBC, memberDB, Seq] =
-    dbQuery.filter(_.NAME === name)
-
-  private def filterQueryByNameAndTeam(name: String, teamName: String): Query[memberDBC, memberDB, Seq] =
-    dbQuery.filter(p => p.NAME === name && p.TEAMNAME === teamName)
 
   //find
   def findByName(name: String) = {
@@ -90,10 +91,16 @@ object memberDatabase{
     finally db.close()
   }
 
+  private def filterQueryByName(name: String): Query[memberDBC, memberDB, Seq] =
+    dbQuery.filter(_.NAME === name)
+
   def findByNameAndTeam(name: String, teamName: String) = {
     try db.run(filterQueryByNameAndTeam(name, teamName).result)
     finally db.close()
   }
+
+  private def filterQueryByNameAndTeam(name: String, teamName: String): Query[memberDBC, memberDB, Seq] =
+    dbQuery.filter(p => p.NAME === name && p.TEAMNAME === teamName)
 
   def findMaxId: Future[Option[Int]] = {
     try db.run(dbQuery.map(_.ID).max.result)

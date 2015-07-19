@@ -21,12 +21,15 @@ class teamDBC(tag: Tag) extends Table[teamDB](tag, "TEAM") {
   def TITLE = foreignKey("MEMBER",TEAMNAME,memberDatabase.dbQuery)(_.TEAMNAME)
 }
 
-object teamDatabase{
+object teamDatabase {
   val dbQuery = TableQuery[teamDBC]
   def db: Database = Database.forDataSource(DB.getDataSource())
 
+  //lazy val db = Database.forDataSource(DB.getDataSource())
+
   //select
   def getAll: Future[Seq[teamDB]] = {
+    println(dbQuery.shaped)
     try db.run(dbQuery.sortBy(_.ID.asc).result)
     finally db.close()
   }
@@ -65,10 +68,10 @@ object teamDatabase{
   }
 
   //fillter
-  private def filterQueryById(id: Int): Query[teamDBC, teamDB, Seq] =
+  def filterQueryById(id: Int): Query[teamDBC, teamDB, Seq] =
     dbQuery.filter(_.ID === id)
 
-  private def filterQueryByTeamname(teamName: String): Query[teamDBC, teamDB, Seq] =
+  def filterQueryByTeamname(teamName: String): Query[teamDBC, teamDB, Seq] =
     dbQuery.filter(_.TEAMNAME === teamName)
 
   def findByName(teamName:String) = {

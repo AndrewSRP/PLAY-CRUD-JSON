@@ -1,17 +1,15 @@
 package controllers
 
-import play.api.libs.iteratee.Enumerator
 import play.api.mvc._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object Application extends Controller {
   import utils.JsonFormatter._
-
+  import models._
   def index = Action {
-    Result(
-      header = ResponseHeader(200, Map(CONTENT_TYPE -> "text/plain")),
-      body = Enumerator("Hello world!".getBytes())
-    )
+    Ok("Hello World!").withHeaders(
+      CACHE_CONTROL -> "max-age=3600",
+      ETAG -> "xx")
   }
 
   def testPOST = Action { request =>
