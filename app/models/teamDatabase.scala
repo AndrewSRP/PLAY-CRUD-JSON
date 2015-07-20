@@ -29,7 +29,7 @@ object teamDatabase {
 
   //select
   def getAll: Future[Seq[teamDB]] = {
-    println(dbQuery.shaped)
+    println("test")
     try db.run(dbQuery.sortBy(_.ID.asc).result)
     finally db.close()
   }
