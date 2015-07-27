@@ -45,27 +45,57 @@ object memberApplication extends Controller with memberTable with HasDatabaseCon
   //{"PASSWORD":"pass","JOB":"jbo","AGE":0}
   //{"TEAMTITLE":"came","ID":3,"NAME":"andrew","PASSWORD":"pass","JOB":"jbo","AGE":0}
   def memberInsert(teamTitle: String, memberName: String) = Action { request =>
-    val json: memberJsons = request.body.asJson.get.as[memberJsons]
-    db.run( dbQuery += memberDB(teamTitle, 0, memberName,
-    json.PASSWORD,
-    json.JOB,
-    json.AGE
-    )).recover {
-      case ex: SQLTimeoutException =>
-        InternalServerError(ex.getMessage)
+    val checkJson = request.body.asJson.get
+    if(checkJson.validate[memberJsons].isSuccess){
+      val json: memberJsons = checkJson.as[memberJsons]
+      db.run( dbQuery += memberDB(teamTitle, 0, memberName,
+        json.PASSWORD,
+        json.JOB,
+        json.AGE
+      )).recover {
+        case ex: SQLTimeoutException =>
+          InternalServerError(ex.getMessage)
+      }
     }
     Redirect(routes.memberApplication.memberGetAll)
   }
 
   //member_update
-  def memberUpdate(teamTitle: String, memberName: String) = Ok("stay")
+  def memberUpdate(teamTitle: String, memberName: String) = Action{ request =>
+    val checkJson = request.body.asJson.get
+    if(checkJson.validate[memberJsons].isSuccess){
+      val json: memberJsons = checkJson.as[memberJsons]
+      findIdByTeamname(teamTitle).map(x =>
+        db.run(dbQuery.filter(_.TEAMNAME === teamTitle).update(memberDB (teamTitle,x.head.ID,memberName,
+          json.PASSWORD,
+          json.JOB,
+          json.AGE))).recover {
+          case ex: SQLTimeoutException =>
+            InternalServerError(ex.getMessage)
+        }
+      )
+    }
+    Redirect(routes.memberApplication.memberGetAll)
+  }
 
   //member_del
+  def memberAllDel = {
+    db.run(dbQuery.delete)
+  }
+
+  def memberDelByTeamName(teamTitle: String) {
+    db.run(dbQuery.filter(_.TEAMNAME === teamTitle).delete)
+  }
+
   def memberDel(teamTitle: String, memberName: String) = Action {
     db.run(dbQuery.filter(_.NAME === memberName).delete).recover {
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
     }
     Redirect(routes.memberApplication.memberGetAll)
+  }
+
+  def findIdByTeamname(teamTitle: String) = {
+    db.run(dbQuery.filter(_.TEAMNAME === teamTitle).result)
   }
 }

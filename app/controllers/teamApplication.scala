@@ -33,6 +33,8 @@ import slick.driver.JdbcProfile
     }).recover {
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
+      case all: Exception =>
+        InternalServerError(all.getMessage)
     }
   }
 
@@ -43,6 +45,8 @@ import slick.driver.JdbcProfile
     }).recover {
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
+      case all: Exception =>
+        InternalServerError(all.getMessage)
     }
   }
 
@@ -53,6 +57,8 @@ import slick.driver.JdbcProfile
     }).recover {
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
+      case all: Exception =>
+        InternalServerError(all.getMessage)
     }
   }
 
@@ -60,41 +66,79 @@ import slick.driver.JdbcProfile
   //{"MEMBERCOUNT":1,"URLPATH":"urlpath","CASH":100,"MASTERID":10}
   //{"ID":36,"TITLE":"came","MEMBERCOUNT":1,"URLPATH":"urlpath","CASH":100,"MASTERID":10}
   def teamInsert(teamTitle: String) = Action { request =>
-    val json: teamJsons = request.body.asJson.get.as[teamJsons]
-    db.run( dbQuery += teamDB(0, teamTitle,
-      json.MEMBERCOUNT,
-      json.URLPATH,
-      json.CASH,
-      json.MASTERID)).recover {
-      case ex: SQLTimeoutException =>
-        InternalServerError(ex.getMessage)
+    val checkJson = request.body.asJson.get
+    if(checkJson.validate[teamJsons].isSuccess){
+      val json: teamJsons = checkJson.as[teamJsons]
+      db.run( dbQuery += teamDB(0, teamTitle,
+        json.MEMBERCOUNT,
+        json.URLPATH,
+        json.CASH,
+        json.MASTERID)).recover {
+        case ex: SQLTimeoutException =>
+          InternalServerError(ex.getMessage)
+        case all: Exception =>
+          InternalServerError(all.getMessage)
+      }
     }
-
-    Redirect(routes.teamApplication.teamGetAll())
+    else {
+      InternalServerError("not good json")
+    }
+    Redirect("/team")
+    //Redirect(routes.teamApplication.teamGetAll())
   }
 
   //team_update
-  def teamUpdate(teamTitle: String) = Action { request =>
-    val json: teamJsons = request.body.asJson.get.as[teamJsons]
-    db.run(dbQuery.filter(_.TEAMNAME === teamTitle).update(teamDB(0, teamTitle,
-      json.MEMBERCOUNT,
-      json.URLPATH,
-      json.CASH,
-      json.MASTERID))).recover {
-      case ex: SQLTimeoutException =>
-        InternalServerError(ex.getMessage)
+  def teamUpdate(teamTitle: String) = Action{ request =>
+    val checkJson = request.body.asJson.get
+    if(checkJson.validate[teamJsons].isSuccess){
+      val json: teamJsons = checkJson.as[teamJsons]
+      findIdByTeamname(teamTitle).map(x =>
+        db.run(dbQuery.filter(_.TEAMNAME === teamTitle).update(teamDB(x.head.ID,teamTitle,
+          json.MEMBERCOUNT,
+          json.URLPATH,
+          json.CASH,
+          json.MASTERID))).recover {
+          case ex: SQLTimeoutException =>
+            InternalServerError(ex.getMessage)
+          case all: Exception =>
+            InternalServerError(all.getMessage)
+        }
+      )
     }
 
-    Redirect(routes.teamApplication.teamGetAll())
+    //Redirect(routes.teamApplication.teamGetAll())
+    Redirect("/team")
   }
 
   //team_del
-  def teamDel(teamTitle: String) = Action {
-    //memberDatabase.delWithTeam(teamTitle)
-    db.run(dbQuery.filter(_.TEAMNAME === teamTitle).delete).recover {
-      case ex: SQLTimeoutException =>
-        InternalServerError(ex.getMessage)
+  def teamAllDel = Action {
+    try {
+      //memberApplication_copy.memberAllDel
+      db.run(dbQuery.delete)
+      //Redirect(routes.teamApplication.teamGetAll())
+      Redirect("/team")
+    } catch {
+      case all: Exception =>
+        InternalServerError(all.getMessage)
     }
-    Redirect(routes.teamApplication.teamGetAll())
+  }
+
+  def teamDel(teamTitle: String) = Action {
+    try {
+      //memberApplication_copy.memberDelByTeamName(teamTitle)
+      db.run(dbQuery.filter(_.TEAMNAME === teamTitle).delete).recover {
+        case ex: SQLTimeoutException =>
+          InternalServerError(ex.getMessage)
+      }
+      //Redirect(routes.teamApplication.teamGetAll())
+      Redirect("/team")
+    } catch {
+      case all: Exception =>
+        InternalServerError(all.getMessage)
+    }
+  }
+
+  def findIdByTeamname(teamTitle: String) = {
+    db.run(dbQuery.filter(_.TEAMNAME === teamTitle).result)
   }
 }
