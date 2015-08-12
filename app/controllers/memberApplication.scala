@@ -38,6 +38,8 @@ object memberApplication extends Controller with memberTable with HasDatabaseCon
     }).recover {
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
+      case error: Error =>
+        InternalServerError(error.getMessage)
     }
   }
 

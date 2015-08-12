@@ -1,39 +1,20 @@
 # Routes
 # This file defines all application routes (Higher priority routes first)
-# ~~~~
 
-# Home page
-GET           /                                   controllers.Application.index
-
-GET           /ex/two                             controllers.Application.redirectIndex
-GET           /test                               controllers.teamApplication.index
-
-#GET   /                     controllers.Application.show(page = "home")
-#GET   /:page                controllers.Application.show(page)
-#GET   /clients              controllers.Clients.list(page: Int ?= 1)
-#GET   /items/$id<[0-9]+>    controllers.Items.show(id: Long)
-#GET   /api/list-all         controllers.Api.list(version: Option[String])
+#Redirect_home
+GET            /                                  controllers.teamApplication.teamGetAll
 
 #team_main
-GET           /team                               controllers.teamApplication.teamGetAll
+GET           /teams/all                          controllers.teamApplication.teamGetAll
 
 #team_info
-GET           /team/:teamTitle                    controllers.teamApplication.teamGetSomeOne(teamTitle: String)
-POST          /team/:teamTitle                    controllers.teamApplication.teamInsert(teamTitle:String)
-PUT           /team/:teamTitle                    controllers.teamApplication.teamUpdate(teamTitle:String)
-DELETE        /team/:teamTitle                    controllers.teamApplication.teamDel(teamTitle:String)
+GET           /teams/:teamTitle                   controllers.teamApplication.teamGetSomeOne(teamTitle: String)
+POST          /teams/:teamTitle                   controllers.teamApplication.teamInsert(teamTitle:String)
+PUT           /teams/:teamTitle                   controllers.teamApplication.teamUpdate(teamTitle:String)
+DELETE        /teams/:teamTitle                   controllers.teamApplication.teamDel(teamTitle:String)
 
 #member_info
-GET           /member                             controllers.memberApplication.memberGetAll
-#GET           /team/:teamTitle/member             controllers.memberApplication.teamMemberlist(teamTitle: String)
-GET           /team/:teamTitle/:memberName        controllers.memberApplication.memberGetSomeOne(teamTitle: String, memberName:String)
-POST          /team/:teamTitle/:memberName        controllers.memberApplication.memberInsert(teamTitle: String, memberName:String)
-#PUT           /team/:teamTitle/:memberName        controllers.memberApplication.memberUpdate(teamTitle:String, memberName:String)
-DELETE        /team/:teamTitle/:memberName        controllers.memberApplication.memberDel(teamTitle:String, memberName:String)
-
-#member_get_test
-
-
-# Map static resources from the /public folder to the /assets URL path
-GET           /assets/*file                       controllers.Assets.at(path="/public", file)
-
+GET           /teams/:teamTitle/:memberName        controllers.memberApplication.memberGetSomeOne(teamTitle: String, memberName:String)
+POST          /teams/:teamTitle/:memberName        controllers.memberApplication.memberInsert(teamTitle: String, memberName:String)
+PUT           /team/:teamTitle/:memberName         controllers.memberApplication.memberUpdate(teamTitle:String, memberName:String)
+DELETE        /teams/:teamTitle/:memberName        controllers.memberApplication.memberDel(teamTitle:String, memberName:String)

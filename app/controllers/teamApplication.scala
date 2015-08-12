@@ -1,6 +1,6 @@
 package controllers
 
-import java.sql.SQLTimeoutException
+import java.sql.{SQLException, SQLTimeoutException}
 
 import com.sun.corba.se.impl.orbutil.threadpool.TimeoutException
 import models._
@@ -25,11 +25,26 @@ import slick.driver.JdbcProfile
     val dbQuery = TableQuery[teamTableDBC] //see a way to architect your app in the computers-database sample{
 
 
+  def teamGetOne(teamName: String) = Action.async {
+    db.run(dbQuery.filter(_.TEAMNAME === teamName).result).map(team => {
+      if (team.isEmpty) Ok("no VAlues")
+      else {
+        val json: JsValue = Json.parse("{\"teamDB\" : " + Json.toJson(team) + "}")
+        Ok(json)
+      }
+    }).recover {
+      case ex: SQLTimeoutException =>
+        InternalServerError(ex.getMessage)
+    }
+  }
+
   //teamlist
   def index = Action.async {
     db.run(dbQuery.result).map(team => {
-      val json: JsValue = Json.parse("{\"teamDB\" : " + Json.toJson(team) + "}")
-      Ok(json)
+      if (team.isEmpty) Ok("no VAlues")
+      else {
+        val json: JsValue = Json.parse("{\"teamDB\" : " + Json.toJson(team) + "}")
+        Ok(json)}
     }).recover {
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
@@ -40,8 +55,11 @@ import slick.driver.JdbcProfile
 
   def teamGetAll = Action.async {
     db.run(dbQuery.result).map(team => {
-      val json: JsValue = Json.parse("{\"teamDB\" : " + Json.toJson(team) + "}")
-      Ok(json)
+      if (team.isEmpty) Ok("no VAlues")
+      else {
+        val json: JsValue = Json.parse("{\"teamDB\" : " + Json.toJson(team) + "}")
+        Ok(json)
+      }
     }).recover {
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
@@ -52,8 +70,11 @@ import slick.driver.JdbcProfile
 
   def teamGetSomeOne(teamTitle: String) = Action.async {
     db.run(dbQuery.filter(_.TEAMNAME === teamTitle).result).map(team => {
-      val json: JsValue = Json.parse("{\"teamDB\" : " + Json.toJson(team) + "}")
-      Ok(json)
+      if (team.isEmpty) Ok("no VAlues")
+      else {
+        val json: JsValue = Json.parse("{\"teamDB\" : " + Json.toJson(team) + "}")
+        Ok(json)
+      }
     }).recover {
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
@@ -76,6 +97,10 @@ import slick.driver.JdbcProfile
         json.MASTERID)).recover {
         case ex: SQLTimeoutException =>
           InternalServerError(ex.getMessage)
+        case error: Error =>
+          InternalServerError(error.getMessage)
+        case er: SQLException =>
+          InternalServerError(er.getMessage)
         case all: Exception =>
           InternalServerError(all.getMessage)
       }
@@ -90,24 +115,35 @@ import slick.driver.JdbcProfile
   //team_update
   def teamUpdate(teamTitle: String) = Action{ request =>
     val checkJson = request.body.asJson.get
+    var sussess = Redirect("/team")
     if(checkJson.validate[teamJsons].isSuccess){
       val json: teamJsons = checkJson.as[teamJsons]
-      findIdByTeamname(teamTitle).map(x =>
-        db.run(dbQuery.filter(_.TEAMNAME === teamTitle).update(teamDB(x.head.ID,teamTitle,
-          json.MEMBERCOUNT,
-          json.URLPATH,
-          json.CASH,
-          json.MASTERID))).recover {
-          case ex: SQLTimeoutException =>
-            InternalServerError(ex.getMessage)
-          case all: Exception =>
-            InternalServerError(all.getMessage)
+      findIdByTeamname(teamTitle).map(x => {
+          if(x.isEmpty) {
+            sussess = InternalServerError("not find Team")
+          }else {
+            db.run(dbQuery.filter(_.TEAMNAME === teamTitle).update(teamDB(x.head.ID,teamTitle,
+              json.MEMBERCOUNT,
+              json.URLPATH,
+              json.CASH,
+              json.MASTERID))).recover {
+              case ex: SQLTimeoutException =>
+                InternalServerError(ex.getMessage)
+              case ss: TimeoutException =>
+                InternalServerError(ss.getMessage)
+              case all: Exception =>
+                sussess = InternalServerError(all.getMessage)
+            }
+          }
         }
       )
     }
+    println(sussess)
 
     //Redirect(routes.teamApplication.teamGetAll())
-    Redirect("/team")
+
+
+    sussess
   }
 
   //team_del
