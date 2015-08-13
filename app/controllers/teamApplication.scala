@@ -25,40 +25,16 @@ import slick.driver.JdbcProfile
     val dbQuery = TableQuery[teamTableDBC] //see a way to architect your app in the computers-database sample{
 
 
-  def teamGetOne(teamName: String) = Action.async {
-    db.run(dbQuery.filter(_.TEAMNAME === teamName).result).map(team => {
-      if (team.isEmpty) Ok("no VAlues")
-      else {
-        val json: JsValue = Json.parse("{\"teamDB\" : " + Json.toJson(team) + "}")
-        Ok(json)
-      }
-    }).recover {
-      case ex: SQLTimeoutException =>
-        InternalServerError(ex.getMessage)
-    }
+  def okJson(team: Seq[teamDB]): JsValue = {
+    Json.parse("{\"teamDB\" : " + Json.toJson(team) + "}")
   }
 
   //teamlist
-  def index = Action.async {
-    db.run(dbQuery.result).map(team => {
-      if (team.isEmpty) Ok("no VAlues")
-      else {
-        val json: JsValue = Json.parse("{\"teamDB\" : " + Json.toJson(team) + "}")
-        Ok(json)}
-    }).recover {
-      case ex: SQLTimeoutException =>
-        InternalServerError(ex.getMessage)
-      case all: Exception =>
-        InternalServerError(all.getMessage)
-    }
-  }
-
   def teamGetAll = Action.async {
     db.run(dbQuery.result).map(team => {
-      if (team.isEmpty) Ok("no VAlues")
+      if (team.isEmpty) Ok("Not find team")
       else {
-        val json: JsValue = Json.parse("{\"teamDB\" : " + Json.toJson(team) + "}")
-        Ok(json)
+        Ok(okJson(team))
       }
     }).recover {
       case ex: SQLTimeoutException =>
@@ -70,10 +46,9 @@ import slick.driver.JdbcProfile
 
   def teamGetSomeOne(teamTitle: String) = Action.async {
     db.run(dbQuery.filter(_.TEAMNAME === teamTitle).result).map(team => {
-      if (team.isEmpty) Ok("no VAlues")
+      if (team.isEmpty) Ok("i can't find team")
       else {
-        val json: JsValue = Json.parse("{\"teamDB\" : " + Json.toJson(team) + "}")
-        Ok(json)
+        Ok(okJson(team))
       }
     }).recover {
       case ex: SQLTimeoutException =>

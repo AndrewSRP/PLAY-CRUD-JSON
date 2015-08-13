@@ -22,7 +22,7 @@ trait teamTable {
 
     def * = (ID, TEAMNAME, MEMBERCOUNT, URLPATH, CASH, MASTERID) <> (teamDB.tupled, teamDB.unapply)
 
-    def TITLE = foreignKey("MEMBER",TEAMNAME,memberDatabase.dbQuery)(_.TEAMNAME)
+    def TITLE = foreignKey("MEMBER",TEAMNAME,TableQuery[memberDBC])(_.TEAMNAME)
     //def TITLE = foreignKey("MEMBER",TEAMNAME,TableQuery[memberDatabase.dbQuery])(_.TEAMNAME)
   }
 }

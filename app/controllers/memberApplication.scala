@@ -20,11 +20,15 @@ object memberApplication extends Controller with memberTable with HasDatabaseCon
   val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
   val dbQuery = TableQuery[memberTableDBC] //see a way to architect your app in the computers-database sample{
 
+  def okJson(member: Seq[memberDB]): JsValue = Json.parse("{\"memberDB\" : " + Json.toJson(member) + "}")
+
   //member_list
-  def memberGetAll = Action.async {
-    db.run(dbQuery.result).map(team => {
-      val json: JsValue = Json.parse("{\"memberDB\" : " + Json.toJson(team) + "}")
-      Ok(json)
+  def memberGetAll(teamTitle: String) = Action.async {
+    db.run(dbQuery.result).map(member => {
+      if (member.isEmpty) Ok("Not find member")
+      else {
+        Ok(okJson(member))
+      }
     }).recover {
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
@@ -32,9 +36,11 @@ object memberApplication extends Controller with memberTable with HasDatabaseCon
   }
 
   def memberGetSomeOne(teamTitle: String, memberName: String) = Action.async {
-    db.run(dbQuery.filter(_.TEAMNAME === teamTitle).result).map(team => {
-      val json: JsValue = Json.parse("{\"memberDB\" : " + Json.toJson(team) + "}")
-      Ok(json)
+    db.run(dbQuery.filter(_.TEAMNAME === teamTitle).result).map(member => {
+      if (member.isEmpty) Ok("Not find member one")
+      else {
+        Ok(okJson(member))
+      }
     }).recover {
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
@@ -59,7 +65,7 @@ object memberApplication extends Controller with memberTable with HasDatabaseCon
           InternalServerError(ex.getMessage)
       }
     }
-    Redirect(routes.memberApplication.memberGetAll)
+    Redirect(routes.memberApplication.memberGetAll(teamTitle))
   }
 
   //member_update
@@ -77,7 +83,7 @@ object memberApplication extends Controller with memberTable with HasDatabaseCon
         }
       )
     }
-    Redirect(routes.memberApplication.memberGetAll)
+    Redirect(routes.memberApplication.memberGetAll(teamTitle))
   }
 
   //member_del
@@ -94,7 +100,7 @@ object memberApplication extends Controller with memberTable with HasDatabaseCon
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
     }
-    Redirect(routes.memberApplication.memberGetAll)
+    Redirect(routes.memberApplication.memberGetAll(teamTitle))
   }
 
   def findIdByTeamname(teamTitle: String) = {
