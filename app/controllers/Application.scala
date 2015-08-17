@@ -7,6 +7,8 @@ import play.api.libs.json.{Json, JsValue}
 import play.api.mvc._
 
 object Application extends Controller{
+  val notFind = "notFind"
+
   def index = Action {
     Redirect("/teams/all")
   }
@@ -17,5 +19,9 @@ object Application extends Controller{
 
   def memberAll(teamTitle :String, memberName: String, ALL: String) = Action {
     Redirect("/teams/" + teamTitle + "/" + memberName)
+  }
+
+  def nofind(ALL :String) = Action {
+    Ok(notFind)
   }
 }

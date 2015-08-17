@@ -30,7 +30,7 @@ object memberApplication extends Controller with memberTable with HasDatabaseCon
   //member_list
   def memberGetAll(teamTitle: String) = Action.async {
     db.run(dbQuery.result).map(member => {
-      if (member.isEmpty) Ok("Not find member")
+      if (member.isEmpty) Ok("Not find member all")
       else {
         Ok(okJson(memberDbName, member))
       }
