@@ -1,13 +1,9 @@
 package controllers
 
-import java.lang.ProcessBuilder.Redirect
-
-import models._
-import play.api.libs.json.{Json, JsValue}
 import play.api.mvc._
 
 object Application extends Controller{
-  val notFind = "notFind"
+  val notFind = "lostWay"
 
   def index = Action {
     Redirect("/teams/all")

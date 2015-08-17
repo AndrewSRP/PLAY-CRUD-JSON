@@ -1,16 +1,13 @@
 package controllers
 
-import java.sql.{SQLException, SQLTimeoutException}
+import java.sql.SQLTimeoutException
 
-import com.sun.corba.se.impl.orbutil.threadpool.TimeoutException
 import models._
 import play.api.Play
-import play.api.db.slick.DatabaseConfigProvider
-import play.api.db.slick.HasDatabaseConfig
+import play.api.db.slick.{DatabaseConfigProvider,HasDatabaseConfig}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import play.api.libs.json._
-import play.api.mvc.Action
-import play.api.mvc.Controller
+import play.api.mvc.{Action,Controller}
 import slick.driver.JdbcProfile
 
 

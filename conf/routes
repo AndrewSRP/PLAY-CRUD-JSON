@@ -2,37 +2,30 @@
 # This file defines all application routes (Higher priority routes first)
 
 #Redirect_home
-GET           /                                                                     controllers.Application.index
-GET           /teams                                                                controllers.Application.index
-GET           /teams/                                                               controllers.Application.index
-GET           /teams/$teamTitle<\w+>/                                      controllers.Application.teamMemberAll(teamTitle: String)
+GET           /                                                   controllers.Application.index
+GET           /teams                                              controllers.Application.index
+GET           /teams/                                             controllers.Application.index
+GET           /teams/$teamTitle<\w+>/                             controllers.Application.teamMemberAll(teamTitle: String)
 GET           /teams/$teamTitle<\w+>/$memberName<\w+>/*ALL        controllers.Application.memberAll(teamTitle: String, memberName:String, ALL)
 
 #team_main
-GET           /teams/all                                                            controllers.teamApplication.teamGetAll
-GET           /teams/$teamTitle<\w+>/all                                   controllers.memberApplication.memberGetAll(teamTitle: String)
+GET           /teams/all                                          controllers.teamApplication.teamGetAll
+GET           /teams/$teamTitle<\w+>/all                          controllers.memberApplication.memberGetAll(teamTitle: String)
 
 #team_info
-GET           /teams/$teamTitle<\w+>                                                controllers.teamApplication.teamGetSomeOne(teamTitle: String)
-#GET           /teams/$teamTitle<[¤¡-¤¾¤¿-¤Ó°¡-ÆR]+>                                 controllers.Application.nofind(teamTitle:String)
-#/^[\.:/\w]$/
-
-POST          /teams/$teamTitle<\w+>                                       controllers.teamApplication.teamInsert(teamTitle:String)
-PUT           /teams/$teamTitle<\w+>                                       controllers.teamApplication.teamUpdate(teamTitle:String)
-DELETE        /teams/$teamTitle<\w+>                                       controllers.teamApplication.teamDel(teamTitle:String)
+GET           /teams/$teamTitle<\w+>                              controllers.teamApplication.teamGetSomeOne(teamTitle: String)
+POST          /teams/$teamTitle<\w+>                              controllers.teamApplication.teamInsert(teamTitle:String)
+PUT           /teams/$teamTitle<\w+>                              controllers.teamApplication.teamUpdate(teamTitle:String)
+DELETE        /teams/$teamTitle<\w+>                              controllers.teamApplication.teamDel(teamTitle:String)
 
 
 #member_info
 GET           /teams/$teamTitle<\w+>/$memberName<\w+>             controllers.memberApplication.memberGetSomeOne(teamTitle: String, memberName:String)
-GET           /teams/$teamTitle<\w+>/$memberName<\w+>                  controllers.Application.nofinds(teamTitle:String,memberName:String)
-
 POST          /teams/$teamTitle<\w+>/$memberName<\w+>             controllers.memberApplication.memberInsert(teamTitle: String, memberName:String)
 PUT           /teams/$teamTitle<\w+>/$memberName<\w+>             controllers.memberApplication.memberUpdate(teamTitle:String, memberName:String)
 DELETE        /teams/$teamTitle<\w+>/$memberName<\w+>             controllers.memberApplication.memberDel(teamTitle:String, memberName:String)
 
 
 #all exception
-GET           /*ALL                                                                  controllers.Application.nofind(ALL)
-
-#GET           /:page                                                          controllers.Application.notFound(page)
-GET           /assets/*file                                                         controllers.Assets.at(path="/public", file)
+GET           /*ALL                                               controllers.Application.nofind(ALL)
+GET           /assets/*file                                       controllers.Assets.at(path="/public", file)
