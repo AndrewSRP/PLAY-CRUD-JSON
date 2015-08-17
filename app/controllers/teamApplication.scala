@@ -25,9 +25,8 @@ import slick.driver.JdbcProfile
     val dbQuery = TableQuery[teamTableDBC] //see a way to architect your app in the computers-database sample{
     val teamDbName = "teamDB"
 
-  def okJson(dbName: String,team: Seq[teamDB]): JsValue = {
-    Json.parse("{\""+ dbName +"\" : " + Json.toJson(team) + "}")
-  }
+  def reDirect = Redirect("/teams/all")
+  def okJson(dbName: String,team: Seq[teamDB]): JsValue = Json.parse("{\""+ dbName +"\" : " + Json.toJson(team) + "}")
 
   //teamlist
   def teamGetAll = Action.async {
@@ -39,6 +38,8 @@ import slick.driver.JdbcProfile
     }).recover {
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
+      case error: SlickException =>
+        InternalServerError(error.getMessage)
       case all: Exception =>
         InternalServerError(all.getMessage)
     }
@@ -53,6 +54,8 @@ import slick.driver.JdbcProfile
     }).recover {
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
+      case error: SlickException =>
+        InternalServerError(error.getMessage)
       case all: Exception =>
         InternalServerError(all.getMessage)
     }
@@ -62,8 +65,10 @@ import slick.driver.JdbcProfile
   //{"MEMBERCOUNT":1,"URLPATH":"urlpath","CASH":100,"MASTERID":10}
   //{"ID":36,"TITLE":"came","MEMBERCOUNT":1,"URLPATH":"urlpath","CASH":100,"MASTERID":10}
   def teamInsert(teamTitle: String) = Action { request =>
+    var retuen = reDirect
     val checkJson = request.body.asJson.get
-    if(checkJson.validate[teamJsons].isSuccess){
+    if(checkJson.validate[teamJsons].isSuccess
+      && !teamTitle.equals("all")){
       val json: teamJsons = checkJson.as[teamJsons]
       db.run( dbQuery += teamDB(0, teamTitle,
         json.MEMBERCOUNT,
@@ -71,31 +76,29 @@ import slick.driver.JdbcProfile
         json.CASH,
         json.MASTERID)).recover {
         case ex: SQLTimeoutException =>
-          InternalServerError(ex.getMessage)
-        case error: Error =>
-          InternalServerError(error.getMessage)
-        case er: SQLException =>
-          InternalServerError(er.getMessage)
+          retuen = InternalServerError(ex.getMessage)
+        case error: SlickException =>
+          retuen = InternalServerError(error.getMessage)
         case all: Exception =>
-          InternalServerError(all.getMessage)
+          retuen = InternalServerError(all.getMessage)
       }
     }
     else {
-      InternalServerError("not good json")
+      retuen = InternalServerError("Not good json OR teamName")
     }
-    Redirect("/team")
-    //Redirect(routes.teamApplication.teamGetAll())
+    retuen
   }
 
   //team_update
   def teamUpdate(teamTitle: String) = Action{ request =>
+    var retuen = reDirect
     val checkJson = request.body.asJson.get
-    var sussess = Redirect("/team")
-    if(checkJson.validate[teamJsons].isSuccess){
+    if(checkJson.validate[teamJsons].isSuccess
+      && !teamTitle.equals("all")){
       val json: teamJsons = checkJson.as[teamJsons]
       findIdByTeamname(teamTitle).map(x => {
           if(x.isEmpty) {
-            sussess = InternalServerError("not find Team")
+            retuen = InternalServerError("not find Team")
           }else {
             db.run(dbQuery.filter(_.TEAMNAME === teamTitle).update(teamDB(x.head.ID,teamTitle,
               json.MEMBERCOUNT,
@@ -103,32 +106,29 @@ import slick.driver.JdbcProfile
               json.CASH,
               json.MASTERID))).recover {
               case ex: SQLTimeoutException =>
-                InternalServerError(ex.getMessage)
-              case ss: TimeoutException =>
-                InternalServerError(ss.getMessage)
+                retuen = InternalServerError(ex.getMessage)
+              case error: SlickException =>
+                retuen = InternalServerError(error.getMessage)
               case all: Exception =>
-                sussess = InternalServerError(all.getMessage)
+                retuen = InternalServerError(all.getMessage)
             }
           }
         }
       )
     }
-    println(sussess)
-
-    //Redirect(routes.teamApplication.teamGetAll())
-
-
-    sussess
+    retuen
   }
 
   //team_del
   def teamAllDel = Action {
     try {
-      //memberApplication_copy.memberAllDel
       db.run(dbQuery.delete)
-      //Redirect(routes.teamApplication.teamGetAll())
-      Redirect("/team")
+      reDirect
     } catch {
+      case ex: SQLTimeoutException =>
+        InternalServerError(ex.getMessage)
+      case error: SlickException =>
+        InternalServerError(error.getMessage)
       case all: Exception =>
         InternalServerError(all.getMessage)
     }
@@ -141,9 +141,12 @@ import slick.driver.JdbcProfile
         case ex: SQLTimeoutException =>
           InternalServerError(ex.getMessage)
       }
-      //Redirect(routes.teamApplication.teamGetAll())
-      Redirect("/team")
+      reDirect
     } catch {
+      case ex: SQLTimeoutException =>
+        InternalServerError(ex.getMessage)
+      case error: SlickException =>
+        InternalServerError(error.getMessage)
       case all: Exception =>
         InternalServerError(all.getMessage)
     }

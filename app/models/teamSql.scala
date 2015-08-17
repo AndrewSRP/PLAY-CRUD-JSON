@@ -1,10 +1,6 @@
 package models
 
-import play.api.Play
-import play.api.db.slick.{HasDatabaseConfig, DatabaseConfigProvider}
 import slick.driver.JdbcProfile
-
-import scala.concurrent.Future
 
 /**
  * Created by andrew on 2015-07-20.

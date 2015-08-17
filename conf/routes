@@ -2,27 +2,26 @@
 # This file defines all application routes (Higher priority routes first)
 
 #Redirect_home
-GET           /                                    controllers.Application.index
-GET           /teams                               controllers.Application.index
-GET           /teams/                              controllers.Application.index
-GET           /teams/:teamTitle/                   controllers.Application.teamMemberAll(teamTitle: String)
-GET           /teams/:teamTitle/:memberName/*ALL   controllers.Application.memberAll(teamTitle: String, memberName:String, ALL)
-#GET           /teams/:teamTitle                    controllers.Application.teamMemberAll(teamTitle: String)
+GET           /                                         controllers.Application.index
+GET           /teams                                    controllers.Application.index
+GET           /teams/                                   controllers.Application.index
+GET           /teams/$teamTitle<0-9a-zA-Z>/                        controllers.Application.teamMemberAll(teamTitle: String)
+GET           /teams/$teamTitle<0-9a-zA-Z>/$memberName<0-9a-zA-Z>/*ALL        controllers.Application.memberAll(teamTitle: String, memberName:String, ALL)
 
 #team_main
-GET           /teams/all                           controllers.teamApplication.teamGetAll
-GET           /teams/:teamTitle/all                controllers.memberApplication.memberGetAll(teamTitle: String)
+GET           /teams/all                                controllers.teamApplication.teamGetAll
+GET           /teams/$teamTitle<0-9a-zA-Z>/all                     controllers.memberApplication.memberGetAll(teamTitle: String)
 
 #team_info
-GET           /teams/:teamTitle                    controllers.teamApplication.teamGetSomeOne(teamTitle: String)
-POST          /teams/:teamTitle                    controllers.teamApplication.teamInsert(teamTitle:String)
-PUT           /teams/:teamTitle                    controllers.teamApplication.teamUpdate(teamTitle:String)
-DELETE        /teams/:teamTitle                    controllers.teamApplication.teamDel(teamTitle:String)
+GET           /teams/$teamTitle<0-9a-zA-Z>              controllers.teamApplication.teamGetSomeOne(teamTitle: String)
+POST          /teams/$teamTitle<0-9a-zA-Z>              controllers.teamApplication.teamInsert(teamTitle:String)
+PUT           /teams/$teamTitle<0-9a-zA-Z>              controllers.teamApplication.teamUpdate(teamTitle:String)
+DELETE        /teams/$teamTitle<0-9a-zA-Z>             controllers.teamApplication.teamDel(teamTitle:String)
 
 #member_info
-GET           /teams/:teamTitle/:memberName        controllers.memberApplication.memberGetSomeOne(teamTitle: String, memberName:String)
-POST          /teams/:teamTitle/:memberName        controllers.memberApplication.memberInsert(teamTitle: String, memberName:String)
-PUT           /teams/:teamTitle/:memberName        controllers.memberApplication.memberUpdate(teamTitle:String, memberName:String)
-DELETE        /teams/:teamTitle/:memberName        controllers.memberApplication.memberDel(teamTitle:String, memberName:String)
+GET           /teams/$teamTitle<0-9a-zA-Z>/$memberName<0-9a-zA-Z>             controllers.memberApplication.memberGetSomeOne(teamTitle: String, memberName:String)
+POST          /teams/$teamTitle<0-9a-zA-Z>/$memberName<0-9a-zA-Z>             controllers.memberApplication.memberInsert(teamTitle: String, memberName:String)
+PUT           /teams/$teamTitle<0-9a-zA-Z>/$memberName<0-9a-zA-Z>             controllers.memberApplication.memberUpdate(teamTitle:String, memberName:String)
+DELETE        /teams/$teamTitle<0-9a-zA-Z>/$memberName<0-9a-zA-Z>             controllers.memberApplication.memberDel(teamTitle:String, memberName:String)
 
-GET           /assets/*file                        controllers.Assets.at(path="/public", file)
+GET           /assets/*file                             controllers.Assets.at(path="/public", file)

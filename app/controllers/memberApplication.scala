@@ -16,11 +16,16 @@ import slick.driver.JdbcProfile
 object memberApplication extends Controller with memberTable with HasDatabaseConfig[JdbcProfile]{
   import utils.JsonFormatter._
   import driver.api._
+
   //create an instance of the table
   val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
   val dbQuery = TableQuery[memberTableDBC] //see a way to architect your app in the computers-database sample{
   val memberDbName:String = "memberDB"
+
+  def reDirect(teamTitle: String) = Redirect("/teams/"+teamTitle+"/all")
+    //Redirect(routes.memberApplication.memberGetAll(teamTitle))
   def okJson(dbName: String ,member: Seq[memberDB]): JsValue = Json.parse("{\"" + dbName + "\" : " + Json.toJson(member) + "}")
+
 
   //member_list
   def memberGetAll(teamTitle: String) = Action.async {
@@ -44,8 +49,10 @@ object memberApplication extends Controller with memberTable with HasDatabaseCon
     }).recover {
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
-      case error: Error =>
+      case error: SlickException =>
         InternalServerError(error.getMessage)
+      case all: Exception =>
+        InternalServerError(all.getMessage)
     }
   }
 
@@ -63,9 +70,13 @@ object memberApplication extends Controller with memberTable with HasDatabaseCon
       )).recover {
         case ex: SQLTimeoutException =>
           InternalServerError(ex.getMessage)
+        case error: SlickException =>
+          InternalServerError(error.getMessage)
+        case all: Exception =>
+          InternalServerError(all.getMessage)
       }
     }
-    Redirect(routes.memberApplication.memberGetAll(teamTitle))
+    reDirect(teamTitle)
   }
 
   //member_update
@@ -80,10 +91,14 @@ object memberApplication extends Controller with memberTable with HasDatabaseCon
           json.AGE))).recover {
           case ex: SQLTimeoutException =>
             InternalServerError(ex.getMessage)
+          case error: SlickException =>
+            InternalServerError(error.getMessage)
+          case all: Exception =>
+            InternalServerError(all.getMessage)
         }
       )
     }
-    Redirect(routes.memberApplication.memberGetAll(teamTitle))
+    reDirect(teamTitle)
   }
 
   //member_del
@@ -99,8 +114,12 @@ object memberApplication extends Controller with memberTable with HasDatabaseCon
     db.run(dbQuery.filter(_.NAME === memberName).delete).recover {
       case ex: SQLTimeoutException =>
         InternalServerError(ex.getMessage)
+      case error: SlickException =>
+        InternalServerError(error.getMessage)
+      case all: Exception =>
+        InternalServerError(all.getMessage)
     }
-    Redirect(routes.memberApplication.memberGetAll(teamTitle))
+    reDirect(teamTitle)
   }
 
   def findIdByTeamname(teamTitle: String) = {
