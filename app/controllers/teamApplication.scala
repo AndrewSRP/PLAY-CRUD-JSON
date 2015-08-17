@@ -23,10 +23,10 @@ import slick.driver.JdbcProfile
     //create an instance of the table
     val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
     val dbQuery = TableQuery[teamTableDBC] //see a way to architect your app in the computers-database sample{
+    val teamDbName = "teamDB"
 
-
-  def okJson(team: Seq[teamDB]): JsValue = {
-    Json.parse("{\"teamDB\" : " + Json.toJson(team) + "}")
+  def okJson(dbName: String,team: Seq[teamDB]): JsValue = {
+    Json.parse("{\""+ dbName +"\" : " + Json.toJson(team) + "}")
   }
 
   //teamlist
@@ -34,7 +34,7 @@ import slick.driver.JdbcProfile
     db.run(dbQuery.result).map(team => {
       if (team.isEmpty) Ok("Not find team")
       else {
-        Ok(okJson(team))
+        Ok(okJson(teamDbName,team))
       }
     }).recover {
       case ex: SQLTimeoutException =>
@@ -48,7 +48,7 @@ import slick.driver.JdbcProfile
     db.run(dbQuery.filter(_.TEAMNAME === teamTitle).result).map(team => {
       if (team.isEmpty) Ok("i can't find team")
       else {
-        Ok(okJson(team))
+        Ok(okJson(teamDbName,team))
       }
     }).recover {
       case ex: SQLTimeoutException =>

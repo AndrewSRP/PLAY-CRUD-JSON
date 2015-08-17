@@ -19,15 +19,15 @@ object memberApplication extends Controller with memberTable with HasDatabaseCon
   //create an instance of the table
   val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
   val dbQuery = TableQuery[memberTableDBC] //see a way to architect your app in the computers-database sample{
-
-  def okJson(member: Seq[memberDB]): JsValue = Json.parse("{\"memberDB\" : " + Json.toJson(member) + "}")
+  val memberDbName:String = "memberDB"
+  def okJson(dbName: String ,member: Seq[memberDB]): JsValue = Json.parse("{\"" + dbName + "\" : " + Json.toJson(member) + "}")
 
   //member_list
   def memberGetAll(teamTitle: String) = Action.async {
     db.run(dbQuery.result).map(member => {
       if (member.isEmpty) Ok("Not find member")
       else {
-        Ok(okJson(member))
+        Ok(okJson(memberDbName, member))
       }
     }).recover {
       case ex: SQLTimeoutException =>
@@ -39,7 +39,7 @@ object memberApplication extends Controller with memberTable with HasDatabaseCon
     db.run(dbQuery.filter(_.TEAMNAME === teamTitle).result).map(member => {
       if (member.isEmpty) Ok("Not find member one")
       else {
-        Ok(okJson(member))
+        Ok(okJson(memberDbName, member))
       }
     }).recover {
       case ex: SQLTimeoutException =>

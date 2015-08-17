@@ -4,6 +4,9 @@
 #Redirect_home
 GET           /                                    controllers.Application.index
 GET           /teams                               controllers.Application.index
+GET           /teams/                              controllers.Application.index
+GET           /teams/:teamTitle/                   controllers.Application.teamMemberAll(teamTitle: String)
+GET           /teams/:teamTitle/:memberName/*ALL   controllers.Application.memberAll(teamTitle: String, memberName:String, ALL)
 #GET           /teams/:teamTitle                    controllers.Application.teamMemberAll(teamTitle: String)
 
 #team_main
